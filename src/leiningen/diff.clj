@@ -3,7 +3,8 @@
             leiningen.core.project
             [leiningen.core.classpath :as cp]
             [clojure.java.shell :as sh]
-            [clojure.pprint :refer [pprint]]))
+            [clojure.pprint :refer [pprint]]
+            [clojure.set :as set]))
 
 (defn fmt-locator
   [locator]
@@ -45,7 +46,7 @@
        @project))
    [:default]))
 
-;;;; Processing
+;;;; Dependencies extraction
 
 (defn graph-nodes
   [graph]
@@ -61,7 +62,29 @@
   [project]
   (->> (cp/dependency-hierarchy :dependencies project)
        graph-nodes
-       (map simple-dep)))
+       (map simple-dep)
+       (into {})))
+
+;;;; Processing
+
+(defn compare-dep-lists
+  [from to]
+  (let [from-set (set (keys from))
+        to-set (set (keys to))
+        common (set/intersection from-set to-set)
+        removed (set/difference from-set to-set)
+        added (set/difference to-set from-set)
+        changed (for [depname common
+                      :let [from-ver (from depname)
+                            to-ver (to depname)]
+                      :when (not= from-ver to-ver)]
+                  [depname from-ver to-ver])]
+    {:common (select-keys from common)
+     :removed (select-keys from removed)
+     :added (select-keys to added)
+     :changed changed}))
+
+;;;; Entry point
 
 (defn diff
   "Perform a diff of dependencies."
@@ -72,7 +95,4 @@
                      (get-deps (read-init-raw spec (get-project-raw spec)))))
         deps-from (deps-for from)
         deps-to (deps-for to)]
-    (println "FROM:")
-    (pprint deps-from)
-    (println "TO:")
-    (pprint deps-to)))
+    (pprint (compare-dep-lists deps-from deps-to))))
