@@ -6,24 +6,6 @@ file is full of lies.**
 A Leiningen plugin to perform diffs of dependencies between different
 versions of a project.
 
-## Development notes
-
-From IRC:
-
-> Writing lein-diff is more complicated than I thought. Dependencies
-> get resolved in the context of a project; a project is loaded from
-> file; the file *might* need to be in the context of the entire repo
-> in case of lurking middleware.
-> 
-> It might have to be orchestrated by a shell script, I'm not sure.
-> 
-> Maybe you have a shell script that clones the project to two
-> locations, checks out the appropriate commit in each, then calls
-> lein diff with paths to the project.clj in each project. That lein
-> diff then invokes lein diff from the working directory of each
-> project to extract data, receives the results, and outputs the diff
-> results.
-
 ## Usage
 
 Put `[lein-diff "0.1.0-SNAPSHOT"]` into the `:plugins` vector of your
@@ -34,6 +16,21 @@ Then execute this inside a project:
 
 ```bash
 lein diff HEAD^ HEAD
+```
+
+...and... *something* comes out. At last revision of the README, you
+get something like this:
+
+```clojure
+{:changed ([org.clojure/clojure "1.5.1" "1.6.0"]),
+ :added
+ {com.netflix.rxjava/rxjava-clojure "0.19.1",
+  com.netflix.rxjava/rxjava-core "0.19.1"},
+ :removed
+ {robert/hooke "1.3.0",
+  org.clojure/algo.monads "0.1.4",
+  org.clojure/tools.macro "0.1.0",
+  org.clojars.runa/clj-schema "0.9.3"}}
 ```
 
 ## License
