@@ -95,4 +95,6 @@
                      (get-deps (read-init-raw spec (get-project-raw spec)))))
         deps-from (deps-for from)
         deps-to (deps-for to)]
-    (pprint (compare-dep-lists deps-from deps-to))))
+    (pprint (select-keys
+             (compare-dep-lists deps-from deps-to)
+             [:removed :added :changed]))))
