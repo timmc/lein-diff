@@ -51,16 +51,21 @@
 ;;;; Dependencies extraction
 
 (defn graph-nodes
+  "Given a dependency graph, yield all the dependencies."
   [graph]
   (for [[k sub] graph
         node (cons k (graph-nodes sub))]
     node))
 
 (defn simple-dep
+  "Simplify a dependency vector into just the first two elements, name
+  and version."
   [dep]
   [(first dep) (second dep)])
 
 (defn get-deps
+  "Given a project, yield all (transitive) dependencies as a map of
+names to versions."
   [project]
   (->> (cp/dependency-hierarchy :dependencies project)
        graph-nodes
@@ -70,6 +75,14 @@
 ;;;; Processing
 
 (defn compare-dep-lists
+  "Given two dependency maps, yield a map of:
+
+- :common - Submap of common dependencies
+- :removed - Submap of deps only in `from`
+- :added - Submap of deps only in `to`
+
+- :changed - Coll of vectors [depname, from-version, to-version] where
+  the versions differ."
   [from to]
   (let [from-set (set (keys from))
         to-set (set (keys to))
@@ -89,7 +102,7 @@
 ;;;; Entry point
 
 (defn diff
-  "Perform a diff of dependencies."
+  "Perform a diff of leiningen projects."
   [project from to]
   (let [deps-for (fn [rev]
                    (let [spec {:revision rev
