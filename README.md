@@ -3,8 +3,22 @@
 **This project is still in early and intermittent development. This
 file is full of lies.**
 
-A Leiningen plugin to perform diffs of dependencies between different
-versions of a project.
+A Leiningen plugin to perform diffs of transitive dependencies between
+different versions of a project.
+
+## Motivation
+
+Looking at diffs of a project.clj only tells you what explicit
+dependencies have changed, not how your transitive dependencies have
+changed. What if the new version of clj-http brought in a new version
+of ApacheHttpClient with different behavior? What if reordering your
+dependencies changed which version of a transitive dep was pulled in?
+
+lein-diff is intended to ferret out these differences. The goal is to
+support build infrastructure such that a build agent can annotate a
+GitHub pull request with a list of changed dependencies, or support
+scripting such that a git bisect command can determine where a
+transitive dependency changed.
 
 ## Usage
 
