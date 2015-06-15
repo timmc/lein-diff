@@ -27,8 +27,9 @@
 ;; Forked from leiningen.core.project/read, since we don't have an
 ;; actual file to work from.
 (defn read-init-raw
-  "Read project file without loading certificates, plugins, middleware, etc."
-  [locator raw]
+  "Read project file without loading certificates, plugins,
+middleware, etc. Locator given for messaging only."
+  [raw locator]
   (leiningen.core.project/init-project
    ;; read-raw introduced in 2.4.4
    (locking @(or (ns-resolve 'leiningen.core.project 'read-raw)
@@ -45,8 +46,7 @@
                                     (fmt-locator locator)))))
        ;; return it to original state
        (ns-unmap 'leiningen.core.project 'project)
-       @project))
-   [:default]))
+       @project))))
 
 ;;;; Dependencies extraction
 
@@ -101,15 +101,17 @@ names to versions."
 
 ;;;; Entry point
 
+(defn deps-for-rev
+  "Given a revision, yield dependencies in project (including
+transitive) as a map of depnames to versions."
+  [rev]
+  (let [locator {:revision rev
+                 :path "project.clj"}]
+    (get-deps (read-init-raw (get-project-raw locator) locator))))
+
 (defn diff
   "Perform a diff of leiningen projects."
   [project from to]
-  (let [deps-for (fn [rev]
-                   (let [spec {:revision rev
-                               :path "project.clj"}]
-                     (get-deps (read-init-raw spec (get-project-raw spec)))))
-        deps-from (deps-for from)
-        deps-to (deps-for to)]
-    (pprint (select-keys
-             (compare-dep-lists deps-from deps-to)
-             [:removed :added :changed]))))
+  (pprint (select-keys (compare-dep-lists (deps-for-rev from)
+                                          (deps-for-rev to))
+                       [:removed :added :changed])))
