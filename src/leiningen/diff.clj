@@ -6,13 +6,15 @@
             [clojure.pprint :refer [pprint]]
             [clojure.set :as set]))
 
-(defn fmt-locator
+(defn git-locator-arg
+  "Format a project locator for git."
   [locator]
   (str (:revision locator) ":" (:path locator)))
 
-(defn git-locator-arg
+(defn fmt-locator
+  "Format a project locator for display."
   [locator]
-  (fmt-locator locator))
+  (git-locator-arg locator))
 
 ;;;; Sourcing projects
 
