@@ -47,6 +47,11 @@ get something like this:
   org.clojars.runa/clj-schema "0.9.3"}}
 ```
 
+## Limitations
+
+- Cannot handle branches with some weird names, notably ones starting
+  with a hyphen or containing a colon.
+
 ## License
 
 Copyright © 2015 Tim McCormack

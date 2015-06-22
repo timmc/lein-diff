@@ -6,23 +6,13 @@
             [clojure.pprint :refer [pprint]]
             [clojure.set :as set]))
 
-(defn git-locator-arg
-  "Format a project locator for git."
-  [locator]
-  (str (:revision locator) ":" (:path locator)))
-
-(defn fmt-locator
-  "Format a project locator for display."
-  [locator]
-  (git-locator-arg locator))
-
 ;;;; Sourcing projects
 
 (defn get-project-raw
   "From a git revision get the contents of a project file."
   [locator]
   ;; TODO err, exit
-  (:out (sh/sh "git" "show" (git-locator-arg locator))))
+  (:out (sh/sh "git" "show" locator)))
 
 ;; Forked from leiningen.core.project/read, since we don't have an
 ;; actual file to work from.
@@ -38,12 +28,12 @@ middleware, etc. Locator given for messaging only."
        (try (eval (read-string raw)) ;; FIXME what about multiple forms?
             (catch Exception e
               (throw (Exception. (format "Error loading rev %s"
-                                         (fmt-locator locator))
+                                         locator)
                                  e)))))
      (let [project (resolve 'leiningen.core.project/project)]
        (when-not project
          (throw (Exception. (format "%s must define project map"
-                                    (fmt-locator locator)))))
+                                    locator))))
        ;; return it to original state
        (ns-unmap 'leiningen.core.project 'project)
        @project))))
@@ -101,15 +91,22 @@ names to versions."
 
 ;;;; Entry point
 
+(defn resolve-locator
+  "Given a loose project locator, yield a well-defined one. (Specificy
+path to project.clj if not given.)"
+  [locator-spec]
+  (if (.contains locator-spec ":")
+    locator-spec
+    (str locator-spec ":project.clj")))
+
 (defn deps-for-rev
   "Given a revision, yield dependencies in project (including
 transitive) as a map of depnames to versions."
-  [rev]
-  (let [locator {:revision rev
-                 :path "project.clj"}]
+  [locator-spec]
+  (let [locator (resolve-locator locator-spec)]
     (get-deps (read-init-raw (get-project-raw locator) locator))))
 
-(defn diff
+(defn ^:no-project-needed diff
   "Perform a diff of leiningen projects."
   [project from to]
   (pprint (select-keys (compare-dep-lists (deps-for-rev from)
