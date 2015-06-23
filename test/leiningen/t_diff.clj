@@ -4,6 +4,6 @@
 
 (deftest locator-resolution
   (is (= (d/resolve-locator "abcdef")
-         "abcdef:project.clj"))
+         "abcdef:./project.clj"))
   (is (= (d/resolve-locator "abcdef:foo/project.clj")
          "abcdef:foo/project.clj")))

@@ -95,9 +95,9 @@ names to versions."
   "Given a loose project locator, yield a well-defined one. (Specificy
 path to project.clj if not given.)"
   [locator-spec]
-  (if (.contains locator-spec ":")
+  (if (.endsWith locator-spec "project.clj")
     locator-spec
-    (str locator-spec ":project.clj")))
+    (str locator-spec ":./project.clj")))
 
 (defn deps-for-rev
   "Given a revision, yield dependencies in project (including

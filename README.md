@@ -47,10 +47,39 @@ get something like this:
   org.clojars.runa/clj-schema "0.9.3"}}
 ```
 
+More generally, the syntax is `lein diff <from> <to>` where `<from>`
+and `<to>` are git revision coordinates. (See `man 7 gitrevisions`.)
+These might look like `HEAD:project.clj` or
+`ba68a0:common/project.clj` or `my-branch~3:project.clj`. If the
+revspec doesn't contain a path (such as simply `HEAD` or
+`my-branch~3`, the path is assumed to be `./project.clj`.
+
+### Examples
+
+- `lein diff abcdef^ abcdef` shows what commit `abcdef` changed
+  relative to its first parent
+- `lein diff $(git merge-base master HEAD) HEAD` shows the changes
+  you've made since forking from master (but not staged changes or
+  changes in the working directory)
+- `lein diff HEAD ""` shows the staged changes to project.clj (`:path`
+  specifies a blob in the index in git)
+- `lein diff move-it^:old-path/project.clj move-it:new-path/project.clj`
+  compares a project.clj file that moved during the last commit on
+  a branch.
+
 ## Limitations
 
 - Cannot handle branches with some weird names, notably ones starting
   with a hyphen or containing a colon.
+- Cannot diff working directory with git index or history.
+- Only understands git, not other SCMs.
+
+## TODO
+
+- Allow specifying weird branches and paths that would make for
+  ambiguous or unusable git revspecs.
+- Allow references to filesystem instead of git.
+- Allow references to other SCMs... or maybe just command outputs.
 
 ## License
 
