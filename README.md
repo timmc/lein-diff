@@ -1,39 +1,19 @@
 # lein-diff
 
-**This project is still in early and intermittent development. This
-file is full of lies.**
-
 A Leiningen plugin to perform diffs of transitive dependencies between
 different versions of a project.
 
-## Motivation
+**This project is still in early and intermittent development. Expect
+the interface to change drastically between versions until 1.0 is
+release.**
 
-Looking at diffs of a project.clj only tells you what explicit
-dependencies have changed, not how your transitive dependencies have
-changed. What if the new version of clj-http brought in a new version
-of ApacheHttpClient with different behavior? What if reordering your
-dependencies changed which version of a transitive dep was pulled in?
-
-lein-diff is intended to ferret out these differences. The goal is to
-support build infrastructure such that a build agent can annotate a
-GitHub pull request with a list of changed dependencies, or support
-scripting such that a git bisect command can determine where a
-transitive dependency changed.
-
-## Usage
-
-Put `[lein-diff "0.1.0-SNAPSHOT"]` into the `:plugins` vector of your
-`:user` profile, or if you are on Leiningen 1.x do `lein plugin install
-lein-diff 0.1.0-SNAPSHOT`.
-
-Then execute this inside a project:
+Ask for a diff between two git revisions:
 
 ```bash
 lein diff HEAD^ HEAD
 ```
 
-...and... *something* comes out. At last revision of the README, you
-get something like this:
+and out comes a map of differences:
 
 ```clojure
 {:changed ([org.clojure/clojure "1.5.1" "1.6.0"]),
@@ -47,13 +27,47 @@ get something like this:
   org.clojars.runa/clj-schema "0.9.3"}}
 ```
 
-More generally, the syntax is `lein diff <from> <to>` where `<from>`
-and `<to>` are git revision coordinates (see `man 7 gitrevisions`) or
-`file://` paths.  These might look like `HEAD:project.clj` or
-`ba68a0:common/project.clj` or `my-branch~3:project.clj`. If the
-revspec doesn't contain a path (such as simply `HEAD` or
-`my-branch~3`, the path is assumed to be `./project.clj`. A file path
-of `file://project.clj` takes project.clj from the current directory.
+[![Clojars Project](https://clojars.org/org.timmc/lein-diff/latest-version.svg)](https://clojars.org/org.timmc/lein-diff)
+
+## Motivation
+
+Looking at diffs of a project.clj only tells you what explicit
+dependencies have changed, not how your transitive dependencies have
+changed. What if the new version of clj-http brought in a new version
+of ApacheHttpClient with different behavior? What if reordering your
+dependencies changed which version of a transitive dep was pulled in?
+
+lein-diff is intended to ferret out these differences. The goal is to
+support build infrastructure such that (for example) a build agent can
+annotate a GitHub pull request with a list of changed dependencies, or
+support scripting such that a git bisect command can determine where a
+transitive dependency changed.
+
+## Usage
+
+Put `[lein-diff "0.1.0"]` into the `:plugins` vector of your
+`:user` profile.
+
+CLI syntax: `lein diff <from> <to>`
+
+`<from>` and `<to>` are locators for project.clj files:
+
+- `<revspec>` - A git revision specifier (see `man 7 gitrevisions`)
+  naming a commit. lein-diff will load the project.clj in the current
+  directory from that revision. (Equivalent to specifying a path of
+  `project.clj` in the next form.)
+- `<revspec>:<repo-path>` - A revision specifier naming a blob using
+  revision + path such as `HEAD:project.clj`,
+  `ba68a0:common/project.clj`, or `my-branch~3:project.clj`.
+- `file://<path>` - A file path of `file://project.clj` takes
+  project.clj from the current directory. Note the lack of a third
+  slash, which would indicate an absolute path. Alpha feature; does
+  not yet actually work like a URI, so don't use percent-encoding!
+
+The output is a pretty-printed map. The `:added` and `:removed` values
+are maps of dependency names to the versions newly added or last seen;
+the `:changed` value is a sequence of vectors containing the
+dependency name, the previous version, and the new version.
 
 ### Examples
 
@@ -70,19 +84,11 @@ of `file://project.clj` takes project.clj from the current directory.
 - `lein diff HEAD file://project.clj` shows the uncommitted changes to
   project.clj
 
-## Limitations
-
-- Cannot handle branches with some weird names, notably ones starting
-  with a hyphen or containing a colon.
-- Possibly cannot handle file paths with characters that need URI
-  escaping -- I'm not handling file:// as a URI.
-- Only understands git, not other SCMs.
-
 ## TODO
 
 - Allow specifying weird branches and paths that would make for
-  ambiguous or unusable git revspecs.
-- Allow references to filesystem instead of git.
+  ambiguous or unusable git revspecs. (Or at least document exactly
+  what is not supported.)
 - Allow references to other SCMs... or maybe just command outputs.
 
 ## License
