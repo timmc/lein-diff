@@ -48,11 +48,12 @@ get something like this:
 ```
 
 More generally, the syntax is `lein diff <from> <to>` where `<from>`
-and `<to>` are git revision coordinates. (See `man 7 gitrevisions`.)
-These might look like `HEAD:project.clj` or
+and `<to>` are git revision coordinates (see `man 7 gitrevisions`) or
+`file://` paths.  These might look like `HEAD:project.clj` or
 `ba68a0:common/project.clj` or `my-branch~3:project.clj`. If the
 revspec doesn't contain a path (such as simply `HEAD` or
-`my-branch~3`, the path is assumed to be `./project.clj`.
+`my-branch~3`, the path is assumed to be `./project.clj`. A file path
+of `file://project.clj` takes project.clj from the current directory.
 
 ### Examples
 
@@ -66,12 +67,15 @@ revspec doesn't contain a path (such as simply `HEAD` or
 - `lein diff move-it^:old-path/project.clj move-it:new-path/project.clj`
   compares a project.clj file that moved during the last commit on
   a branch.
+- `lein diff HEAD file://project.clj` shows the uncommitted changes to
+  project.clj
 
 ## Limitations
 
 - Cannot handle branches with some weird names, notably ones starting
   with a hyphen or containing a colon.
-- Cannot diff working directory with git index or history.
+- Possibly cannot handle file paths with characters that need URI
+  escaping -- I'm not handling file:// as a URI.
 - Only understands git, not other SCMs.
 
 ## TODO

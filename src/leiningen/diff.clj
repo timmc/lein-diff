@@ -9,10 +9,12 @@
 ;;;; Sourcing projects
 
 (defn get-project-raw
-  "From a git revision get the contents of a project file."
+  "From a locator get the contents of a project file."
   [locator]
   ;; TODO err, exit
-  (:out (sh/sh "git" "show" locator)))
+  (case (:protocol locator)
+    :file (slurp (:file locator) :encoding "UTF-8")
+    :git (:out (sh/sh "git" "show" (:revspec locator)))))
 
 ;; Forked from leiningen.core.project/read, since we don't have an
 ;; actual file to work from.
@@ -28,12 +30,12 @@ middleware, etc. Locator given for messaging only."
        (try (eval (read-string raw)) ;; FIXME what about multiple forms?
             (catch Exception e
               (throw (Exception. (format "Error loading rev %s"
-                                         locator)
+                                         (:spec locator))
                                  e)))))
      (let [project (resolve 'leiningen.core.project/project)]
        (when-not project
          (throw (Exception. (format "%s must define project map"
-                                    locator))))
+                                    (:spec locator)))))
        ;; return it to original state
        (ns-unmap 'leiningen.core.project 'project)
        @project))))
@@ -95,9 +97,16 @@ names to versions."
   "Given a loose project locator, yield a well-defined one. (Specificy
 path to project.clj if not given.)"
   [locator-spec]
-  (if (.endsWith locator-spec "project.clj")
-    locator-spec
-    (str locator-spec ":./project.clj")))
+  (let [file-proto-prefix "file://"]
+    (assoc (if (.startsWith locator-spec file-proto-prefix)
+             {:protocol :file
+              :file (java.io.File. (.substring locator-spec
+                                               (count file-proto-prefix)))}
+             {:protocol :git
+              :revspec (if (.endsWith locator-spec "project.clj")
+                         locator-spec
+                         (str locator-spec ":./project.clj"))})
+      :spec locator-spec)))
 
 (defn deps-for-rev
   "Given a revision, yield dependencies in project (including
