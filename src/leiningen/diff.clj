@@ -72,23 +72,23 @@ names to versions."
 - :common - Submap of common dependencies
 - :removed - Submap of deps only in `from`
 - :added - Submap of deps only in `to`
-
 - :changed - Coll of vectors [depname, from-version, to-version] where
   the versions differ."
   [from to]
   (let [from-set (set (keys from))
         to-set (set (keys to))
-        common (set/intersection from-set to-set)
-        removed (set/difference from-set to-set)
-        added (set/difference to-set from-set)
-        changed (for [depname common
+        removed-names (set/difference from-set to-set)
+        added-names (set/difference to-set from-set)
+        common-names (set/intersection from-set to-set)
+        changed (for [depname common-names
                       :let [from-ver (from depname)
                             to-ver (to depname)]
                       :when (not= from-ver to-ver)]
-                  [depname from-ver to-ver])]
-    {:common (select-keys from common)
-     :removed (select-keys from removed)
-     :added (select-keys to added)
+                  [depname from-ver to-ver])
+        common (into {} (set/intersection (set from) (set to)))]
+    {:common common
+     :removed (select-keys from removed-names)
+     :added (select-keys to added-names)
      :changed changed}))
 
 ;;;; Entry point

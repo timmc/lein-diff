@@ -1,5 +1,11 @@
 # Changelog of lein-diff
 
+## vNext.Patch - ???
+
+Fixes:
+
+- Compute common set correctly (fix 0.1.0 bug)
+
 ## v0.1.0 - 2015-06-25
 
 Enhancements:
