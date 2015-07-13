@@ -4,7 +4,7 @@
 
 Fixes:
 
-- Compute common set correctly (fix 0.1.0 bug)
+- Compute common set correctly (fix 0.1.0 internal bug)
 
 ## v0.1.0 - 2015-06-25
 
@@ -14,4 +14,4 @@ Enhancements:
 
 Breakage:
 
-- Does not compute common set correctly at all
+- Does not compute common set correctly at all (internal-only bug, fixed v???)
