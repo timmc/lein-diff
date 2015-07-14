@@ -1,4 +1,4 @@
-(defproject org.timmc/lein-diff "0.1.1-SNAPSHOT"
+(defproject org.timmc/lein-diff "0.1.1"
   :description "Compute diffs between versions of a project"
   :url "https://github.com/timmc/lein-diff"
   :license {:name "Eclipse Public License"
