@@ -45,7 +45,7 @@ transitive dependency changed.
 
 ## Usage
 
-Put `[lein-diff "0.1.0"]` into the `:plugins` vector of your
+Put `[lein-diff "0.1.1"]` into the `:plugins` vector of your
 `:user` profile.
 
 CLI syntax: `lein diff <from> <to>`

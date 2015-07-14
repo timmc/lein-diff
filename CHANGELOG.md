@@ -1,6 +1,6 @@
 # Changelog of lein-diff
 
-## vNext.Patch - ???
+## v0.1.1 - 2015-07-14
 
 Fixes:
 
@@ -14,4 +14,5 @@ Enhancements:
 
 Breakage:
 
-- Does not compute common set correctly at all (internal-only bug, fixed v???)
+- Does not compute common set correctly at all (internal-only bug,
+  fixed v0.1.1)
