@@ -1,6 +1,6 @@
 # Changelog of lein-diff
 
-## v0.2.0 - PENDING
+## v0.2.0 - 2018-04-18
 
 Fixes:
 
