@@ -1,5 +1,11 @@
 # Changelog of lein-diff
 
+## v0.2.0 - PENDING
+
+Fixes:
+
+- Allow multiple forms in project file
+
 ## v0.1.1 - 2015-07-14
 
 Fixes:

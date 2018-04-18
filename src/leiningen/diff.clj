@@ -27,7 +27,7 @@ middleware, etc. Locator given for messaging only."
    (locking @(or (ns-resolve 'leiningen.core.project 'read-raw)
                  (ns-resolve 'leiningen.core.project 'read))
      (binding [*ns* (find-ns 'leiningen.core.project)]
-       (try (eval (read-string raw)) ;; FIXME what about multiple forms?
+       (try (load-string raw) ;; MODIFIED: allows multiple forms
             (catch Exception e
               (throw (Exception. (format "Error loading rev %s"
                                          (:spec locator))
